@@ -1,9 +1,11 @@
 import { action } from "@storybook/addon-actions";
+import { withKnobs, object } from "@storybook/addon-knobs";
 import Task from "./Task";
 
 export default {
   title: "Task",
   component: Task,
+  decorators: [withKnobs],
   excludeStories: /.*Data$/
 };
 
@@ -19,33 +21,65 @@ export const actionsData = {
   onArchiveTask: action("onArchiveTask")
 };
 
-export const Default = () => {
-  return {
-    components: { Task },
-    template: `<task :task="task" @archiveTask="onArchiveTask" @pinTask="onPinTask"/>`,
-    data: () => ({ task: taskData }),
-    methods: actionsData
-  };
-};
+const taskTemplate = `<task :task="task" @archiveTask="onArchiveTask" @pinTask="onPinTask"/>`;
 
-export const Pinned = () => {
-  return {
-    components: { Task },
-    template: `<task :task="task" @archiveTask="onArchiveTask" @pinTask="onPinTask"/>`,
-    data: () => ({ task: { ...taskData, state: "TASK_PINNED" } }),
-    methods: actionsData
-  };
-};
+export const Default = () => ({
+  components: { Task },
+  template: taskTemplate,
+  props: {
+    task: {
+      default: object("task", { ...taskData })
+    }
+  },
+  methods: actionsData
+});
+
+export const Pinned = () => ({
+  components: { Task },
+  template: taskTemplate,
+  props: {
+    task: {
+      default: {
+        ...taskData,
+        state: "TASK_PINNED"
+      }
+    }
+  },
+  methods: actionsData
+});
 
 Pinned.story = {
   parameters: { notes: "testing search" }
 };
 
-export const Archived = () => {
+export const Archived = () => ({
+  components: { Task },
+  template: taskTemplate,
+  props: {
+    task: {
+      default: {
+        ...taskData,
+        state: "TASK_ARCHIVED"
+      }
+    }
+  },
+  methods: actionsData
+});
+
+export const LongTitle = () => {
+  const longTitle = `This task's name is absurdly large. In fact, I think if I keep going I might end up with content overflow. What will happen? The star that represents a pinned task could have text overlapping. The text could cut-off abruptly when it reaches the star. I hope not!`;
+
   return {
     components: { Task },
-    template: `<task :task="task" @archiveTask="onArchiveTask" @pinTask="onPinTask"/>`,
-    data: () => ({ task: { ...taskData, state: "TASK_ARCHIVED" } }),
+    template: taskTemplate,
+    props: {
+      task: {
+        default: {
+          ...taskData,
+          title: longTitle
+        }
+      }
+    },
     methods: actionsData
   };
 };
